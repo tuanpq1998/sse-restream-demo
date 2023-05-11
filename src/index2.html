@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    Data events:<br />
+    <div id="result"></div>
+    <hr />
+    Errors:<br />
+    <div id="errors"></div>
+    <hr />
+    Create parallel event:<br />
+
+    <form id="form1">
+      <input type="submit" value="EMIT EVENT (THIS NOT WORKS, TRY TO DEBUG)" />
+    </form>
+
+    <script type="text/javascript">
+      var subscription = null;
+      function formSubmit(event) {
+        event.preventDefault();
+        subscription = new EventSource(`/sse-restream`);
+        subscription.onmessage = (message) => {
+          const dataJson = JSON.parse(message.data);
+          if (dataJson.halfDynamicText.text == '[DONE]') subscription.close();
+          else
+            document.getElementById('result').innerHTML +=
+              dataJson.halfDynamicText.text;
+        };
+        subscription.onerror = (message) => {
+          document.getElementById('errors').innerHTML +=
+            JSON.stringify(message) + '<br/>';
+        };
+      }
+
+      document.getElementById('form1').addEventListener('submit', formSubmit);
+      window.addEventListener('beforeunload', function () {
+        !subscription && subscription.close();
+      });
+    </script>
+  </body>
+</html>

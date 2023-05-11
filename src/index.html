@@ -1,0 +1,15 @@
+<div id="static"></div>
+<div id="message"></div>
+<script type="text/javascript">
+  const messageElement = document.querySelector('#message');
+  const staticElement = document.querySelector('#static');
+  const eventSource = new EventSource('/sse');
+  eventSource.onmessage = (response) => {
+    // console.log({ response });
+    const dataJson = JSON.parse(response.data);
+    staticElement.textContent = dataJson.halfDynamicText.static;
+    console.log(dataJson);
+    if (dataJson.halfDynamicText.text == '[DONE]') eventSource.close();
+    else messageElement.textContent += dataJson.halfDynamicText.text;
+  };
+</script>
